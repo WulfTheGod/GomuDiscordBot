@@ -34,17 +34,20 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          scp -i private_key.pem gomu-discord-bot.tar ubuntu@$LIGHTSAIL_IP:/home/ubuntu/
+          scp -o StrictHostKeyChecking=no -i private_key.pem gomu-discord-bot.tar ubuntu@$LIGHTSAIL_IP:/home/ubuntu/
 
-      # SSH into Lightsail and deploy the Docker container
-      - name: Deploy on Lightsail
+      # SSH into Lightsail to deploy Docker container
+      - name: Deploy Docker container
         env:
           LIGHTSAIL_IP: ${{ secrets.LIGHTSAIL_IP }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         run: |
-          ssh -i private_key.pem ubuntu@$LIGHTSAIL_IP << EOF
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$LIGHTSAIL_IP << EOF
           docker stop gomu-discord-bot || true
           docker rm gomu-discord-bot || true
           docker load < /home/ubuntu/gomu-discord-bot.tar
-          docker run -d --name gomu-discord-bot -p 80:80 --env-file /home/ubuntu/.env gomu-discord-bot
+          docker run -d --restart=always --name gomu-discord-bot -p 80:80 --env-file /home/ubuntu/.env gomu-discord-bot
           EOF
+
