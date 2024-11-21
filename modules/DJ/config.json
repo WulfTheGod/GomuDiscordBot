@@ -1,0 +1,8 @@
+{
+    "max_queue_size": 50,
+    "auto_disconnect_minutes": 5,
+    "allowed_sources": [
+        "youtube"
+    ]
+}
+  

@@ -1,0 +1,6 @@
+discord.py
+yt-dlp
+ffmpeg-python
+python-dotenv
+pynacl
+lyricsgenius

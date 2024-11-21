@@ -1,0 +1,31 @@
+# Ignore environment variables and sensitive files
+.env
+*.pem
+
+# Ignore Python virtual environment
+venv/
+__pycache__/
+*.py[cod]
+
+# Ignore Docker-related files (if they shouldn't be shared)
+Dockerfile
+
+# Ignore editor and OS-specific files
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Ignore temporary files and logs
+*.log
+
+# Ignore metadata files (like Zone.Identifier)
+*.Zone.Identifier
+
+# Ignore compiled files or cache
+*.pyc
+*.pyo
+*.egg-info/
+
+# Ignore package-locks or dependency files (optional if auto-generated)
+*.lock
