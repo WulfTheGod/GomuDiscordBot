@@ -1,0 +1,50 @@
+name: Deploy to Lightsail
+
+on:
+  push:
+    branches:
+      - main  # Trigger workflow on pushes to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Docker
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      # Build the Docker image
+      - name: Build Docker image
+        run: docker build -t gomu-discord-bot .
+
+      # Save the Docker image as a tarball
+      - name: Save Docker image
+        run: docker save gomu-discord-bot > gomu-discord-bot.tar
+
+      # Copy Docker image to Lightsail via SCP
+      - name: Copy Docker image to Lightsail
+        env:
+          LIGHTSAIL_IP: ${{ secrets.LIGHTSAIL_IP }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          scp -i private_key.pem gomu-discord-bot.tar ubuntu@$LIGHTSAIL_IP:/home/ubuntu/
+
+      # SSH into Lightsail and deploy the Docker container
+      - name: Deploy on Lightsail
+        env:
+          LIGHTSAIL_IP: ${{ secrets.LIGHTSAIL_IP }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          ssh -i private_key.pem ubuntu@$LIGHTSAIL_IP << EOF
+          docker stop gomu-discord-bot || true
+          docker rm gomu-discord-bot || true
+          docker load < /home/ubuntu/gomu-discord-bot.tar
+          docker run -d --name gomu-discord-bot -p 80:80 --env-file /home/ubuntu/.env gomu-discord-bot
+          EOF
