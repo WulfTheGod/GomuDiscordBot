@@ -6,10 +6,13 @@ WORKDIR /app
 
 # Copy requirements and install them
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the project files into the container
 COPY . .
+
+# Set environment variable for cookie path
+ENV COOKIE_PATH=/app/cookies.txt
 
 # Command to run your bot
 CMD ["python", "gomu.py"]
